@@ -191,7 +191,7 @@ public class Retangulo {
 
     public static void main(String args[]) {
     	PalavrasTeste teste = new PalavrasTeste(); 
-        List<String> palavras = teste.getPalavras(10000);
+        List<String> palavras = teste.getPalavras(4600);
         
         Retangulo instancia = new Retangulo(palavras);
         

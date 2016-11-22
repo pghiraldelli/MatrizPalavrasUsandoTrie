@@ -181,7 +181,7 @@ public class RetanguloTrie {
 
     public static void main(String args[]) {
     	PalavrasTeste teste = new PalavrasTeste(); 
-        List<String> palavras = teste.getPalavras(10000);
+        List<String> palavras = teste.getPalavras(4600);
         
         RetanguloTrie instancia = new RetanguloTrie(palavras);
         
