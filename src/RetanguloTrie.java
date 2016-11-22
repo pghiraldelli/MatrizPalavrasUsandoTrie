@@ -5,23 +5,26 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 
-public class Retangulo {
+public class RetanguloTrie {
 
     List<Set<String>> palavrasPorTamanho;
     int maxTamanho;
-
-    public Retangulo(List<String> palavras) {
+    List<Trie> tries;
+    
+    public RetanguloTrie(List<String> palavras) {
         preProcessarPalavras(palavras);
     }
 
     private void preProcessarPalavras(List<String> palavras) {
         palavrasPorTamanho = new ArrayList<>();
+        tries = new ArrayList<Trie>();
         maxTamanho = 0;
         for (String palavra : palavras) {
             int tamanho = palavra.length();
             this.maxTamanho = Math.max(tamanho, maxTamanho);
             while (palavrasPorTamanho.size() <= tamanho) {
                 palavrasPorTamanho.add(null);
+                tries.add(null);
             }
             Set<String> conjuntoPalavras = palavrasPorTamanho.get(tamanho);
             if (conjuntoPalavras == null) {
@@ -59,34 +62,6 @@ public class Retangulo {
         List<String> retangulo = new ArrayList<>(p);
 //        return expandirRetangulo(retangulo, p, q);
         return expandirRetanguloComPoda(retangulo, p, q);
-    }
-
-    private List<String> expandirRetangulo(List<String> retangulo,
-                                           int p, int q) {
-        // verifica se eh um retangulo completo (estado final)
-        if (retangulo.size() == p) {
-            if (verificarRetangulo(retangulo, p)) {
-                return retangulo;
-            } else {
-                return null;
-            }
-        }
-
-        // nao eh retangulo completo ainda, vou expandir
-        Set<String> palavrasQ = palavrasPorTamanho.get(q);
-        if (palavrasQ == null) {
-            return null;
-        }
-        for (String palavraQ : palavrasQ) {
-            retangulo.add(palavraQ);  // expande
-            // chama recursivamente
-            List<String> resultado = expandirRetangulo(retangulo, p, q);
-            if (resultado != null) {
-                return resultado;
-            }
-            retangulo.remove(retangulo.size() - 1);  // limpa
-        }
-        return null;
     }
 
     private List<String> expandirRetanguloComPoda
@@ -157,28 +132,39 @@ public class Retangulo {
             } else {
                 // queremos na verdade saber se a palavra
                 // referente a essa coluna eh prefixo de alguma palavra valida
-                if (!verificarPrefixo(palavra, tamanhoAlvo)) {
+                if (!verificarPrefixoUsandoTrie(palavra, tamanhoAlvo)) {
                     return false;
                 }
             }
         }
         return true;
     }
-
-    private boolean verificarPrefixo(String prefixo, int tamanhoAlvo) {
-        Set<String> palavrasComTamanhoAlvo = palavrasPorTamanho.get(
-                tamanhoAlvo);
-        if (palavrasComTamanhoAlvo == null) {
-            return false;
-        }
-        for (String palavra : palavrasComTamanhoAlvo) {
-            if (palavra.startsWith(prefixo)) {
-                return true;
+    
+    /**
+     * cria nova Trie com palavras de tamanhoAlvo da lista palavrasPorTamanho
+     * e adiciona na lista de tries.
+     * @param tamanhoAlvo
+     */
+    private void inicializaTrie(int tamanhoAlvo) {
+        if (tries.get(tamanhoAlvo) == null) {
+        	tries.set(tamanhoAlvo, new Trie());
+            for (String palavra : palavrasPorTamanho.get(tamanhoAlvo)) {
+            	tries.get(tamanhoAlvo).adicionarPalavra(palavra);
             }
         }
-        return false;
     }
-
+    
+    /**
+     * Verifica se a Trie de tamanhoAlvo possui filhos com valores do prefixo
+     * @param prefixo
+     * @param tamanhoAlvo
+     * @return
+     */
+    private boolean verificarPrefixoUsandoTrie(String prefixo, int tamanhoAlvo) {
+        inicializaTrie(tamanhoAlvo);
+        return tries.get(tamanhoAlvo).verificarPrefixo(prefixo);
+    }
+    
     public static void imprimirRetangulo(List<String> retangulo) {
         if (retangulo == null) {
             System.out.println("Nao encontrou nada!");
@@ -188,12 +174,16 @@ public class Retangulo {
             }
         }
     }
+    
+    public List<Trie> getTries(){
+    	return this.tries;
+    }
 
     public static void main(String args[]) {
     	PalavrasTeste teste = new PalavrasTeste(); 
         List<String> palavras = teste.getPalavras(10000);
         
-        Retangulo instancia = new Retangulo(palavras);
+        RetanguloTrie instancia = new RetanguloTrie(palavras);
         
         long tempoInicio = System.currentTimeMillis();
         
