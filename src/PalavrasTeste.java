@@ -59,10 +59,13 @@ public class PalavrasTeste {
 	/**
 	 * Metodo responsavel por retornar a sublista de todas as palavras ja lidas do arquivo.
 	 * Tal retorno sera a sublista de palavras do inicio ate o tamanho especificado no parametro.
+	 * Caso o tamanho ultrapasse a quantidade de itens na lista de palavras teste, o retorno será a 
+	 * prórpia lista sem alterações.
 	 * @param tamanho tamanho da lista pretendida
 	 * @return lista de tamanho TAMANHO com palavras testes lidas do arquivo inicial 
 	 */
 	public List<String> getPalavras(int tamanho){
+		if(tamanho > palavras.size()) tamanho = palavras.size();
 		return palavras.subList(0, tamanho-1);
 	}
 	
